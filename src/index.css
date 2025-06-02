@@ -258,3 +258,8 @@ footer {
   background: #ffffff;
   border-radius: 10px;
 }
+
+.loader-items {
+  display: flex;
+  justify-content: center;
+}

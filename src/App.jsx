@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState, CSSProperties } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import ItemsList from "./components/items";
 import Categories from "./components/Categories";
 import ShowItem from "./components/ShowItem";
+import { ClipLoader } from "react-spinners";
+import { DiBlackberry } from "react-icons/di";
 
 function App() {
   const items = [
@@ -58,9 +60,26 @@ function App() {
   ];
 
   const [orders, setOrders] = useState([]);
-  const [currentItems, setCurrentItems] = useState(items);
+  const [currentItems, setCurrentItems] = useState([]);
   const [showItem, setShowItem] = useState(false);
   const [fullItems, setFullItems] = useState({});
+  const [isLoader, setIsLoader] = useState(false);
+
+  useEffect(() => {
+    setIsLoader(true);
+
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ json: () => items });
+      }, 600);
+    })
+      .then((loadedData) => loadedData.json())
+      .then((product) => setCurrentItems(product))
+
+      .finally(() => {
+        setIsLoader(false);
+      });
+  }, []);
 
   const addToOrder = (item) => {
     let isInArray = false;
@@ -96,11 +115,24 @@ function App() {
     <div className="wrapper">
       <Header orders={orders} onDelete={deleteOrder} />
       <Categories checkCategories={checkCategories} />
-      <ItemsList
-        onShowItem={onShowItem}
-        items={currentItems}
-        onAdd={addToOrder}
-      />
+      {isLoader ? (
+        <div className="loader-items">
+          <ClipLoader
+            color="#000000"
+            loading={true}
+            size={100}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        </div>
+      ) : (
+        <ItemsList
+          onShowItem={onShowItem}
+          items={currentItems}
+          onAdd={addToOrder}
+        />
+      )}
+
       {showItem && (
         <ShowItem
           item={fullItems}
